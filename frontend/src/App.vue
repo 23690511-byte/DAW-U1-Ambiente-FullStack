@@ -1,47 +1,33 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { ref, onMounted } from 'vue'
+
+const estado = ref("Verificando servicios...")
+const datos = ref(null)
+
+onMounted(async () => {
+  try {
+    const respuesta = await fetch('http://localhost:8080/api/health.php')
+    datos.value = await respuesta.json()
+
+    estado.value = datos.value.ok
+      ? 'Ambiente Full Stack funcionando correctamente'
+      : 'Se detectaron problemas'
+  } catch (error) {
+    estado.value = 'No fue posible comunicarse con el backend'
+  }
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
   <main>
-    <TheWelcome />
+    <h1>Desarrollo de Aplicaciones Web</h1>
+    <h2>Práctica 1 - Ambiente Full Stack</h2>
+
+    <p>{{ estado }}</p>
+
+    <div v-if="datos">
+      <p>Backend: {{ datos.backend }}</p>
+      <p>Base de datos: {{ datos.database }}</p>
+    </div>
   </main>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>

@@ -15,6 +15,11 @@ const serviciosFiltrados = computed(() => {
   )
 })
 
+// Función que maneja el evento emitido por ServiceCard
+const manejarSeleccion = (servicio) => {
+  alert(`Servicio seleccionado: ${servicio.nombre}\nPrecio: $${servicio.precio}`)
+}
+
 onMounted(async () => {
   try {
     servicios.value = await obtenerServicios()
@@ -60,6 +65,7 @@ onMounted(async () => {
         v-for="servicio in serviciosFiltrados"
         :key="servicio.id"
         :servicio="servicio"
+        @seleccionar="manejarSeleccion"
       />
     </div>
   </section>

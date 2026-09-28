@@ -5,6 +5,10 @@ defineProps({
     required: true
   }
 })
+
+const emit = defineEmits([
+  'seleccionar'
+])
 </script>
 
 <template>
@@ -15,11 +19,14 @@ defineProps({
     <p>
       {{ servicio.descripcion }}
     </p>
-    <p class="price">
+    <p>
       ${{ servicio.precio }}
     </p>
-    <button type="button" :aria-label="'Consultar ' + servicio.nombre">
-      Consultar
+    <button
+      type="button"
+      @click="emit('seleccionar', servicio)"
+    >
+      Ver información
     </button>
   </article>
 </template>

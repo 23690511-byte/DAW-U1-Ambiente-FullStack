@@ -1,3 +1,59 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const servicios = ref([])
+const loading = ref(true)
+const error = ref('')
+
+const fetchServicios = async () => {
+  try {
+    const response = await fetch('/api/servicios.php', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Error al cargar los servicios')
+    }
+
+    const data = await response.json()
+    servicios.value = data
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchServicios()
+})
+</script>
+
 <template>
-  <div>Servicios</div>
+  <section class="services-container">
+    <div class="services-header">
+      <h1>Catálogo de Servicios</h1>
+      <p>Servicios disponibles consultados desde la API en PHP.</p>
+    </div>
+
+    <div v-if="loading" class="loading">
+      Cargando servicios...
+    </div>
+
+    <div v-else-if="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <div v-else class="services-grid">
+      <article v-for="servicio in servicios" :key="servicio.id" class="service-card">
+        <div class="service-icon">🛠️</div>
+        <h2>{{ servicio.nombre }}</h2>
+        <p>{{ servicio.descripcion }}</p>
+        <div class="service-price">${{ servicio.precio }} MXN</div>
+      </article>
+    </div>
+  </section>
 </template>

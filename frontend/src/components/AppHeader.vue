@@ -1,28 +1,36 @@
 <script setup>
+import { useRouter } from 'vue-router'
 import { useAuth } from '../services/auth'
 
-const { user } = useAuth()
+const router = useRouter()
+const { user, logout } = useAuth()
+
+async function cerrarSesion() {
+  await logout()
+  router.push('/login')
+}
 </script>
 
 <template>
   <header class="app-header">
-    <div class="header-container">
-      <div class="header-brand">
-        <span class="brand-badge">V</span>
-        <div class="brand-text">
-          <span class="brand-title">Aplicación Full Stack</span>
-          <span class="brand-subtitle">Vue + PHP</span>
-        </div>
+    <div class="header-brand">
+      <div class="brand-icon">V</div>
+      <div>
+        <strong>Aplicación Full Stack</strong>
+        <small>Vue + PHP</small>
       </div>
+    </div>
 
-      <nav class="header-nav">
-        <RouterLink to="/dashboard" class="nav-link">Dashboard</RouterLink>
-        <RouterLink to="/servicios" class="nav-link">Servicios</RouterLink>
-      </nav>
+    <nav class="nav-links">
+      <RouterLink to="/dashboard">Dashboard</RouterLink>
+      <RouterLink to="/servicios">Servicios</RouterLink>
+    </nav>
 
-      <div class="header-user">
-        <span class="user-name">{{ user?.nombre }}</span>
-      </div>
+    <div class="header-user">
+      <span class="user-name">{{ user?.nombre }}</span>
+      <button class="btn-logout" type="button" @click="cerrarSesion">
+        Cerrar sesión
+      </button>
     </div>
   </header>
 </template>

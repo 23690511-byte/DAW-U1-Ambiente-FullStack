@@ -1,24 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { obtenerServicios } from '../services/api'
 
 const servicios = ref([])
 const loading = ref(true)
 const error = ref('')
 
-const fetchServicios = async () => {
+const cargarServicios = async () => {
   try {
-    const response = await fetch('/api/servicios.php', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error('Error al cargar los servicios')
-    }
-
-    const data = await response.json()
+    const data = await obtenerServicios()
     servicios.value = data
   } catch (err) {
     error.value = err.message
@@ -28,7 +18,7 @@ const fetchServicios = async () => {
 }
 
 onMounted(() => {
-  fetchServicios()
+  cargarServicios()
 })
 </script>
 
@@ -36,7 +26,7 @@ onMounted(() => {
   <section class="services-container">
     <div class="services-header">
       <h1>Catálogo de Servicios</h1>
-      <p>Servicios disponibles consultados desde la API en PHP.</p>
+      <p>Servicios disponibles consultados mediante la API autenticada.</p>
     </div>
 
     <div v-if="loading" class="loading">

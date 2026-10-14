@@ -1,69 +1,70 @@
-import { computed, readonly, ref } from 'vue'
+import { ref, readonly, computed } from 'vue'
 
 const user = ref(null)
 const initialized = ref(false)
 
-const authenticated = computed(() => {
-  return user.value !== null
-})
-
-async function parseJson(response) {
-  const contentType = response.headers.get('content-type') || ''
-  if (!contentType.includes('application/json')) {
-    throw new Error('El backend no devolvió información JSON.')
-  }
-  return response.json()
-}
-
-async function login(credentials) {
-  const response = await fetch(
-    '/api/login.php',
-    {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(credentials)
-    }
-  )
-
-  const data = await parseJson(response)
-  if (!response.ok || !data.ok) {
-    throw new Error(data.message || 'No fue posible iniciar sesión.')
-  }
-
-  user.value = data.user
-  initialized.value = true
-  return data.user
-}
+const authenticated = computed(() => user.value !== null)
 
 async function checkSession() {
   try {
-    const response = await fetch(
-      '/api/session.php',
-      {
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json'
-        }
+    const response = await fetch('/api/check_session.php', {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
       }
-    )
-
-    const data = await parseJson(response)
-    if (response.ok && data.authenticated) {
-      user.value = data.user
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      if (data.authenticated) {
+        user.value = data.user
+      } else {
+        user.value = null
+      }
     } else {
       user.value = null
     }
-  } catch (error) {
+  } catch (err) {
     user.value = null
   } finally {
     initialized.value = true
   }
+}
 
-  return authenticated.value
+async function login(credentials) {
+  const response = await fetch('/api/login.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify(credentials)
+  })
+
+  const data = await response.json()
+
+  if (!response.ok || !data.ok) {
+    throw new Error(data.message || 'Error al iniciar sesión')
+  }
+
+  user.value = data.user
+  return data
+}
+
+async function logout() {
+  try {
+    await fetch('/api/logout.php', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+  } finally {
+    user.value = null
+    initialized.value = true
+  }
 }
 
 export function useAuth() {
@@ -72,6 +73,7 @@ export function useAuth() {
     initialized: readonly(initialized),
     authenticated,
     login,
-    checkSession
+    checkSession,
+    logout
   }
 }

@@ -1,33 +1,33 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import AppHeader from './components/AppHeader.vue'
+import { useAuth } from './services/auth'
 
-const estado = ref("Verificando servicios...")
-const datos = ref(null)
-
-onMounted(async () => {
-  try {
-    const respuesta = await fetch('http://localhost:8080/api/health.php')
-    datos.value = await respuesta.json()
-
-    estado.value = datos.value.ok
-      ? 'Ambiente Full Stack funcionando correctamente'
-      : 'Se detectaron problemas'
-  } catch (error) {
-    estado.value = 'No fue posible comunicarse con el backend'
-  }
-})
+const { user } = useAuth()
 </script>
 
 <template>
-  <main>
-    <h1>Desarrollo de Aplicaciones Web</h1>
-    <h2>Práctica 1 - Ambiente Full Stack</h2>
-
-    <p>{{ estado }}</p>
-
-    <div v-if="datos">
-      <p>Backend: {{ datos.backend }}</p>
-      <p>Base de datos: {{ datos.database }}</p>
-    </div>
-  </main>
+  <div class="app-layout">
+    <AppHeader v-if="user" />
+    <main class="main-content">
+      <RouterView />
+    </main>
+  </div>
 </template>
+
+<style>
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+</style>
